@@ -1,0 +1,76 @@
+{
+  "task": "swinir_dn_rstb4",
+  "model": "plain",
+  "gpu_ids": [0],
+  "dist": false,
+
+  "scale": 1,
+  "n_channels": 1,
+
+  "path": {
+    "root": "denoising",
+    "pretrained_netG": "model_zoo/1100_G_2025-07-22_10-34-36.pth",  
+    "pretrained_netE": null
+  },
+
+  "datasets": {
+    "train": {
+      "name": "DnTrain",
+      "dataset_type": "plain",  
+      "dataroot_H": "datasets/gt",        // 깨끗한 이미지
+      "dataroot_L": "datasets/noisy",     // 노이즈 섞인 이미지
+      "H_size": 128,                       // crop size
+      "dataloader_shuffle": true,
+      "dataloader_num_workers": 4,
+      "dataloader_batch_size": 8
+    },
+    "val": {
+      "name": "DnVal",
+      "dataset_type": "plain",
+      "dataroot_H": "datasets/gt_val",
+      "dataroot_L": "datasets/noisy_val",
+      "dataloader_batch_size": 4
+    },
+    "test": {
+      "name": "DnTest",
+      "dataset_type": "plain",
+      "dataroot_H": "datasets/gt_test",
+      "dataroot_L": "datasets/noisy_test"
+    }
+  },
+
+  "netG": {
+    "net_type": "swinir",
+    "upscale": 1,
+    "in_chans": 1,
+    "img_size": 64,
+    "window_size": 8,
+    "img_range": 1.0,
+    "depths": [4, 4, 4, 4],
+    "embed_dim": 60,
+    "num_heads": [6, 6, 6, 6],
+    "mlp_ratio": 2,
+    "upsampler": null,
+    "resi_connection": "1conv",
+    "init_type": "default"
+  },
+
+  "train": {
+    "G_lossfn_type": "l2",         // "l1" preferred | "l2sum" | "l2" | "ssim" | "charbonnier"  | "perceptual" 
+    "G_lossfn_weight": 1.0,
+    "E_decay": 0.999,
+    "G_optimizer_type": "adam",
+    "G_optimizer_lr": 2e-4,
+    "G_optimizer_wd": 0,
+    "G_optimizer_clipgrad": null,
+    "G_optimizer_reuse": true,
+    "G_scheduler_type": "MultiStepLR",
+    "G_scheduler_milestones": [10000, 20000, 30000],
+    "G_scheduler_gamma": 0.5,
+    "G_param_strict": false,       //  RSTB 수 줄었으므로 strict=False 필요
+    "E_param_strict": true,
+    "checkpoint_test": 5000,
+    "checkpoint_save": 1000,
+    "checkpoint_print": 100
+  }
+}
